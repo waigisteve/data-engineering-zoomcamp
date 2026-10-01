@@ -91,3 +91,23 @@ google-*.json
 .env.*.local
 *.env
 dbt_internal_packages/
+
+# =========================
+# Additional safety (recommended)
+# =========================
+
+# BigQuery / data files
+*.csv
+*.csv.gz
+
+# Logs (extra safety)
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Terraform (if you add later)
+.terraform/
+*.tfstate
+*.tfstate.*

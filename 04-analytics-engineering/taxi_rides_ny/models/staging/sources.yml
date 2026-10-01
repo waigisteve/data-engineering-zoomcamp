@@ -3,7 +3,7 @@ sources:
     description: Raw taxi trip data from NYC TLC
     database: |
       {%- if target.type == 'bigquery' -%}
-        {{ env_var('GCP_PROJECT_ID', 'please-add-your-gcp-project-id-here') }}
+        {{ env_var('GCP_PROJECT_ID', 'terraform-demo-487119') }}
       {%- else -%}
         taxi_rides_ny
       {%- endif -%}
@@ -55,9 +55,9 @@ sources:
             description: Trip type (1=Street-hail, 2=Dispatch)
           - name: ehail_fee
             description: E-hail fee
-
         config:
           loaded_at_field: lpep_pickup_datetime
+
       - name: yellow_tripdata
         description: Raw yellow taxi trip records
         columns:
@@ -97,6 +97,43 @@ sources:
             description: Total amount charged
         config:
           loaded_at_field: tpep_pickup_datetime
+
+      - name: fhv_tripdata_2019_01
+        description: FHV trip records for 2019-01
+
+      - name: fhv_tripdata_2019_02
+        description: FHV trip records for 2019-02
+
+      - name: fhv_tripdata_2019_03
+        description: FHV trip records for 2019-03
+
+      - name: fhv_tripdata_2019_04
+        description: FHV trip records for 2019-04
+
+      - name: fhv_tripdata_2019_05
+        description: FHV trip records for 2019-05
+
+      - name: fhv_tripdata_2019_06
+        description: FHV trip records for 2019-06
+
+      - name: fhv_tripdata_2019_07
+        description: FHV trip records for 2019-07
+
+      - name: fhv_tripdata_2019_08
+        description: FHV trip records for 2019-08
+
+      - name: fhv_tripdata_2019_09
+        description: FHV trip records for 2019-09
+
+      - name: fhv_tripdata_2019_10
+        description: FHV trip records for 2019-10
+
+      - name: fhv_tripdata_2019_11
+        description: FHV trip records for 2019-11
+
+      - name: fhv_tripdata_2019_12
+        description: FHV trip records for 2019-12
+
     config:
       freshness:
         warn_after: {count: 24, period: hour}
