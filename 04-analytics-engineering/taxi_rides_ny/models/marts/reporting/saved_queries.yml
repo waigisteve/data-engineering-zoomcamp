@@ -1,0 +1,14 @@
+version: 2
+
+saved_queries:
+  - name: monthly_revenue_by_zone_and_service
+    label: "Monthly Revenue by Zone and Service"
+    description: "Breakdown of total revenue and trip counts per month, service type, and pickup zone."
+    query_params:
+      metrics:
+        - total_revenue
+        - total_trips
+      group_by:
+        - "TimeDimension('pickup_zone__revenue_month', 'month')"
+        - "Dimension('pickup_zone__service_type')"
+        - "Entity('pickup_zone')"

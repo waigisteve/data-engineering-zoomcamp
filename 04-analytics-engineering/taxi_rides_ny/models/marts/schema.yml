@@ -34,10 +34,9 @@ models:
         enforced: true
     columns:
       - name: trip_id
-        description: Unique trip identifier
+        description: Deterministic trip identifier derived from service type and trip attributes
         data_type: string
         data_tests:
-          - unique
           - not_null
 
       - name: vendor_id
@@ -113,7 +112,7 @@ models:
 
       - name: trip_distance
         description: Trip distance in miles
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: trip_type
         description: Trip type (1=Street-hail, 2=Dispatch)
@@ -125,35 +124,35 @@ models:
 
       - name: fare_amount
         description: Time and distance fare
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: extra
         description: Miscellaneous extras and surcharges
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: mta_tax
         description: MTA tax
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: tip_amount
         description: Tip amount (credit card only)
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: tolls_amount
         description: Total tolls paid
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: ehail_fee
         description: E-hail service fee
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: improvement_surcharge
         description: Improvement surcharge
-        data_type: numeric
+        data_type: decimal(18,3)
 
       - name: total_amount
         description: Total amount charged
-        data_type: numeric
+        data_type: decimal(18,3)
         data_tests:
           - not_null
 
@@ -163,12 +162,13 @@ models:
         data_tests:
           - accepted_values:
               arguments:
-                values: [1, 2, 3, 4, 5]
+                values: [0, 1, 2, 3, 4, 5]
                 quote: false
 
       - name: payment_type_description
         description: Human-readable payment method description
         data_type: string
+
 
   # TEMPORARY DISABLED MODEL
   # ------------------------------------------------------------

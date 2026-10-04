@@ -1,7 +1,10 @@
--- Union green and yellow taxi data into a single dataset
--- Demonstrates how to combine data from multiple sources with slightly different schemas
+{{
+    config(
+        materialized='view'
+    )
+}}
 
-with green_trips as (
+with green_data as (
     select
         vendor_id,
         rate_code_id,
@@ -26,7 +29,7 @@ with green_trips as (
     from {{ ref('stg_green_tripdata') }}
 ),
 
-yellow_trips as (
+yellow_data as (
     select
         vendor_id,
         rate_code_id,
@@ -37,20 +40,24 @@ yellow_trips as (
         store_and_fwd_flag,
         passenger_count,
         trip_distance,
-        cast(1 as integer) as trip_type,  -- Yellow taxis only do street-hail (code 1)
+        trip_type,
         fare_amount,
         extra,
         mta_tax,
         tip_amount,
         tolls_amount,
-        cast(0 as numeric) as ehail_fee,  -- Yellow taxis don't have ehail_fee
+        ehail_fee,
         improvement_surcharge,
         total_amount,
         payment_type,
         'Yellow' as service_type
     from {{ ref('stg_yellow_tripdata') }}
+),
+
+trips_unioned as (
+    select * from green_data
+    union all
+    select * from yellow_data
 )
 
-select * from green_trips
-union all
-select * from yellow_trips
+select * from trips_unioned

@@ -1,6 +1,9 @@
+version: 2
+
 models:
   - name: fct_monthly_zone_revenue
-    description: Monthly revenue aggregation by pickup zone and service type for business reporting
+    description: "Monthly revenue aggregation by pickup zone and service type for business reporting"
+
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -8,27 +11,100 @@ models:
               - pickup_zone
               - revenue_month
               - service_type
+
     columns:
       - name: pickup_zone
-        description: Pickup zone where revenue was generated
+        description: "Pickup zone where revenue was generated"
+        entity:
+          name: pickup_zone
+          type: primary
         data_tests:
           - not_null
+
       - name: revenue_month
-        description: Month for revenue aggregation
+        description: "Month for revenue aggregation"
+        dimension:
+          type: time
+        granularity: month
         data_tests:
           - not_null
+
       - name: service_type
-        description: Service type (Green or Yellow)
+        description: "Service type (Green or Yellow)"
+        dimension:
+          type: categorical
         data_tests:
           - not_null
           - accepted_values:
               arguments:
-                values: ['Green', 'Yellow']
+                values:
+                  - "Green"
+                  - "Yellow"
+
       - name: revenue_monthly_total_amount
-        description: Monthly sum of total fares
+        description: "Monthly sum of total fares"
         data_tests:
           - not_null
+
       - name: total_monthly_trips
-        description: Count of trips in the month
+        description: "Count of trips in the month"
         data_tests:
           - not_null
+
+  - name: time_spine
+    description: "Daily time spine used by the dbt Semantic Layer"
+
+    time_spine:
+      standard_granularity_column: date_day
+
+    columns:
+      - name: date_day
+        granularity: day
+
+
+semantic_models:
+  - name: monthly_zone_revenue_semantic
+    model: ref('fct_monthly_zone_revenue')
+    description: "Semantic model for monthly taxi revenue by zone and service type"
+
+    primary_entity: pickup_zone
+
+    defaults:
+      agg_time_dimension: revenue_month
+
+    dimensions:
+      - name: revenue_month
+        type: time
+        type_params:
+          time_granularity: month
+
+      - name: pickup_zone
+        type: categorical
+
+      - name: service_type
+        type: categorical
+
+    measures:
+      - name: revenue_monthly_total_amount
+        description: "Total monthly revenue"
+        agg: sum
+        agg_time_dimension: revenue_month
+
+      - name: total_monthly_trips
+        description: "Total monthly trips"
+        agg: sum
+        agg_time_dimension: revenue_month
+
+
+metrics:
+  - name: total_revenue
+    label: "Total Revenue ($)"
+    type: simple
+    type_params:
+      measure: revenue_monthly_total_amount
+
+  - name: total_trips
+    label: "Total Trips"
+    type: simple
+    type_params:
+      measure: total_monthly_trips
