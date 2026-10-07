@@ -61,6 +61,245 @@ models:
       - name: date_day
         granularity: day
 
+  - name: fct_zone_activity
+    description: >
+      Daily and hourly aggregation of observed completed taxi trips by pickup zone
+      and service type. The model measures observed activity, not total passenger
+      demand or available taxi supply.
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - activity_date
+              - activity_hour
+              - pickup_location_id
+              - service_type
+
+    columns:
+      - name: activity_date
+        description: "Calendar date on which the trip started"
+        data_tests:
+          - not_null
+
+      - name: activity_hour
+        description: "Hour of day, from 0 through 23"
+        data_tests:
+          - not_null
+
+      - name: day_type
+        description: "Weekday or Weekend classification based on pickup time"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - "Weekday"
+                  - "Weekend"
+
+      - name: time_period
+        description: "Business time classification based on pickup hour"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - "Overnight"
+                  - "Morning Rush"
+                  - "Midday"
+                  - "Evening Rush"
+                  - "Evening"
+
+      - name: service_type
+        description: "Taxi service type"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - "Green"
+                  - "Yellow"
+
+      - name: pickup_location_id
+        description: "TLC pickup location identifier"
+        data_tests:
+          - not_null
+
+      - name: pickup_zone
+        description: "Pickup zone name"
+        data_tests:
+          - not_null
+
+      - name: total_trips
+        description: "Number of observed completed taxi trips"
+        data_tests:
+          - not_null
+
+      - name: total_passengers
+        description: "Sum of reported passenger counts across observed trips"
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: "Sum of reported total trip amounts"
+        data_tests:
+          - not_null
+
+      - name: total_distance
+        description: "Sum of reported trip distances"
+        data_tests:
+          - not_null
+
+      - name: avg_trip_distance
+        description: "Average trip distance"
+        data_tests:
+          - not_null
+
+      - name: avg_trip_duration_minutes
+        description: "Average trip duration in minutes"
+        data_tests:
+          - not_null
+
+
+  - name: fct_zone_morning_activity
+    description: >
+      Zone-level summary of observed weekday morning-rush taxi activity across a normal 2019 weekday comparison baseline.
+      Recorded activity measures source observations; it does not measure passenger demand or taxi supply.
+
+    columns:
+      - name: pickup_zone
+        description: "Taxi pickup zone"
+        data_tests:
+          - not_null
+          - unique
+
+      - name: expected_weekdays
+        description: "Number of normal comparison weekdays in the analysis period"
+
+      - name: observed_weekdays
+        description: "Normal comparison weekdays with at least one recorded morning-rush trip for the zone"
+
+      - name: positive_activity_days
+        description: "Normal comparison weekdays with more than zero recorded trips for the zone"
+
+      - name: recorded_activity_rate
+        description: "Share of normal comparison weekdays with at least one recorded morning-rush activity observation. This is a source observation measure, not passenger demand coverage or transportation capacity."
+
+      - name: total_trips
+        description: "Total observed morning-rush trips across the normal comparison weekdays"
+
+      - name: avg_daily_trips
+        description: "Average observed morning-rush trips per normal comparison weekday"
+
+      - name: median_daily_trips
+        description: "Median observed morning-rush trips per normal comparison weekday"
+
+      - name: p25_daily_trips
+        description: "25th percentile of daily observed morning-rush trips"
+
+      - name: p75_daily_trips
+        description: "75th percentile of daily observed morning-rush trips"
+
+      - name: min_daily_trips
+        description: "Minimum daily observed morning-rush trips"
+
+      - name: max_daily_trips
+        description: "Maximum daily observed morning-rush trips"
+
+  - name: fct_morning_corridor_opportunity
+    description: >
+      Business-facing ranking of persistent weekday morning-rush taxi corridors.
+      Rankings separate corridor scale, daily intensity, revenue yield, and persistence.
+      Revenue measures completed-trip revenue and does not represent profit.
+      This model does not measure unmet demand, taxi supply, or service capacity.
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - pickup_location_id
+              - dropoff_location_id
+              - service_type
+
+    columns:
+      - name: pickup_location_id
+        description: "TLC pickup location identifier"
+        data_tests:
+          - not_null
+
+      - name: pickup_zone
+        description: "Pickup zone name"
+        data_tests:
+          - not_null
+
+      - name: dropoff_location_id
+        description: "TLC drop-off location identifier"
+        data_tests:
+          - not_null
+
+      - name: dropoff_zone
+        description: "Drop-off zone name"
+        data_tests:
+          - not_null
+
+      - name: service_type
+        description: "Taxi service type"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - "Green"
+                  - "Yellow"
+
+      - name: expected_weekdays
+        description: "Number of normal weekday comparison dates in the analysis baseline"
+
+      - name: active_days
+        description: "Number of normal comparison weekdays with at least one completed trip on the corridor"
+
+      - name: corridor_activity_rate
+        description: "Share of normal comparison weekdays with recorded corridor activity"
+
+      - name: total_trips
+        description: "Total completed trips on the corridor during the morning-rush comparison period"
+
+      - name: total_passengers
+        description: "Total passengers recorded on completed trips"
+
+      - name: total_revenue
+        description: "Total revenue recorded from completed trips; this is not profit"
+
+      - name: avg_trips_per_active_day
+        description: "Average completed trips per day among days when the corridor had recorded activity"
+
+      - name: avg_passengers_per_active_day
+        description: "Average recorded passengers per active corridor day"
+
+      - name: avg_revenue_per_active_day
+        description: "Average completed-trip revenue per active corridor day"
+
+      - name: revenue_per_trip
+        description: "Average completed-trip revenue per corridor trip"
+
+      - name: avg_trip_distance
+        description: "Average trip distance for completed trips on the corridor"
+
+      - name: avg_trip_duration_minutes
+        description: "Average completed-trip duration in minutes"
+
+      - name: scale_rank
+        description: "Rank of the corridor by total completed trips, with 1 representing the highest volume"
+
+      - name: intensity_rank
+        description: "Rank of the corridor by average completed trips per active day"
+
+      - name: yield_rank
+        description: "Rank of the corridor by revenue per completed trip"
+
+      - name: persistence_pct
+        description: "Percentage of the normal weekday comparison baseline with recorded corridor activity"
+
 
 semantic_models:
   - name: monthly_zone_revenue_semantic

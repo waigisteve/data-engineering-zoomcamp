@@ -5,6 +5,7 @@
 }}
 
 with green_data as (
+
     select
         vendor_id,
         rate_code_id,
@@ -26,10 +27,13 @@ with green_data as (
         total_amount,
         payment_type,
         'Green' as service_type
+
     from {{ ref('stg_green_tripdata') }}
+
 ),
 
 yellow_data as (
+
     select
         vendor_id,
         rate_code_id,
@@ -51,13 +55,13 @@ yellow_data as (
         total_amount,
         payment_type,
         'Yellow' as service_type
-    from {{ ref('stg_yellow_tripdata') }}
-),
 
-trips_unioned as (
-    select * from green_data
-    union all
-    select * from yellow_data
+    from {{ ref('stg_yellow_tripdata') }}
+
 )
 
-select * from trips_unioned
+select * from green_data
+
+union all
+
+select * from yellow_data

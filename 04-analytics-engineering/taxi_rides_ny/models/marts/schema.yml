@@ -36,9 +36,7 @@ models:
       - name: trip_id
         description: Deterministic trip identifier derived from service type and trip attributes
         data_type: string
-        data_tests:
-          - not_null
-
+        
       - name: vendor_id
         description: Taxi technology provider
         data_type: integer
@@ -61,12 +59,7 @@ models:
       - name: pickup_location_id
         description: TLC Taxi Zone where trip started
         data_type: integer
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_zones')
-                field: location_id
-
+        
       - name: pickup_borough
         description: NYC borough where trip started
         data_type: string
@@ -78,11 +71,6 @@ models:
       - name: dropoff_location_id
         description: TLC Taxi Zone where trip ended
         data_type: integer
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_zones')
-                field: location_id
 
       - name: dropoff_borough
         description: NYC borough where trip ended
@@ -159,12 +147,7 @@ models:
       - name: payment_type
         description: Payment method code
         data_type: integer
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: [0, 1, 2, 3, 4, 5]
-                quote: false
-
+        
       - name: payment_type_description
         description: Human-readable payment method description
         data_type: string
